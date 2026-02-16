@@ -1,0 +1,13 @@
+---
+import DashboardShell from "@components/layout/DashboardShell.astro";
+import PageHeader from "@components/layout/PageHeader.astro";
+import AlertsList from "@components/dashboard/AlertsList";
+---
+
+<DashboardShell title="Alertas - Appix Finance">
+  <PageHeader
+    title="Historial de Alertas"
+    subtitle="Registro de todas las alertas del sistema"
+  />
+  <AlertsList client:load />
+</DashboardShell>

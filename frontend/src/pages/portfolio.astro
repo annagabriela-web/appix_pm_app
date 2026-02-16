@@ -1,0 +1,13 @@
+---
+import DashboardShell from "@components/layout/DashboardShell.astro";
+import PageHeader from "@components/layout/PageHeader.astro";
+import PortfolioTable from "@components/dashboard/PortfolioTable";
+---
+
+<DashboardShell title="Portfolio - Appix Finance">
+  <PageHeader
+    title="Portfolio de Proyectos"
+    subtitle="Estado financiero de todos los proyectos activos"
+  />
+  <PortfolioTable client:load />
+</DashboardShell>

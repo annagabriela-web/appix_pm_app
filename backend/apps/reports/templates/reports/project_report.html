@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @page {
+      size: A4;
+      margin: 2cm;
+      @bottom-right {
+        content: "Pagina " counter(page) " de " counter(pages);
+        font-size: 9px;
+        color: #64748B;
+      }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 11px;
+      color: #1E293B;
+      line-height: 1.5;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #3B82F6;
+      padding-bottom: 20px;
+    }
+    .header h1 { font-size: 22px; color: #1E293B; margin-bottom: 4px; }
+    .header .subtitle { font-size: 12px; color: #64748B; }
+    .section { margin-bottom: 24px; }
+    .section h2 {
+      font-size: 14px;
+      color: #3B82F6;
+      border-bottom: 1px solid #E2E8F0;
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      color: white;
+      font-weight: bold;
+      font-size: 11px;
+    }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .metric-card {
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .metric-card .label {
+      font-size: 9px;
+      text-transform: uppercase;
+      color: #64748B;
+      letter-spacing: 0.5px;
+    }
+    .metric-card .value {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10px;
+    }
+    table th {
+      background: #F8FAFC;
+      text-align: left;
+      padding: 8px;
+      font-size: 9px;
+      text-transform: uppercase;
+      color: #64748B;
+      border-bottom: 2px solid #E2E8F0;
+    }
+    table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #F1F5F9;
+    }
+    .text-right { text-align: right; }
+    .footer {
+      margin-top: 30px;
+      padding-top: 12px;
+      border-top: 1px solid #E2E8F0;
+      font-size: 9px;
+      color: #94A3B8;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <h1>{{ project.name }}</h1>
+    <div class="subtitle">
+      {{ project.code }} &middot; {{ project.client_name }}
+    </div>
+    <div style="margin-top: 12px;">
+      <span class="status-badge" style="background-color: {{ health_color }};">
+        {{ project.current_health_status }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="section">
+    <h2>Resumen Ejecutivo</h2>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="label">Presupuesto</div>
+        <div class="value">${{ project.client_invoice_amount }}</div>
+        <div style="font-size: 9px; color: #64748B;">{{ project.budget_hours }}h</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">Costo Real</div>
+        <div class="value">${{ actual_cost }}</div>
+        <div style="font-size: 9px; color: #64748B;">{{ consumed_hours }}h consumidas</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">Consumo</div>
+        <div class="value">{{ consumption_pct }}%</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">Progreso</div>
+        <div class="value">{{ progress_pct }}%</div>
+        <div style="font-size: 9px; color: #64748B;">EV: ${{ earned_value }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase Comparison -->
+  {% if phases %}
+  <div class="section">
+    <h2>Comparacion por Fase</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Fase</th>
+          <th class="text-right">Estimado (h)</th>
+          <th class="text-right">Real (h)</th>
+          <th class="text-right">Desviacion (h)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for phase in phases %}
+        <tr>
+          <td>{{ phase.name }}</td>
+          <td class="text-right">{{ phase.estimated }}</td>
+          <td class="text-right">{{ phase.actual }}</td>
+          <td class="text-right" style="color: {% if phase.deviation > 0 %}#EF4444{% else %}#10B981{% endif %};">
+            {% if phase.deviation > 0 %}+{% endif %}{{ phase.deviation }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  <!-- Recent Time Entries -->
+  {% if recent_entries %}
+  <div class="section">
+    <h2>Entradas de Tiempo Recientes</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Usuario</th>
+          <th>Fase</th>
+          <th class="text-right">Horas</th>
+          <th class="text-right">Costo</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in recent_entries %}
+        <tr>
+          <td>{{ entry.date }}</td>
+          <td>{{ entry.user_name }}</td>
+          <td>{{ entry.phase.name|default:"-" }}</td>
+          <td class="text-right">{{ entry.duration_hours }}</td>
+          <td class="text-right">${{ entry.cost }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  <div class="footer">
+    Generado por Appix Finance &middot; Reporte automatico
+  </div>
+</body>
+</html>

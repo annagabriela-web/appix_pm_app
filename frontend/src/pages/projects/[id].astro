@@ -1,0 +1,19 @@
+---
+import DashboardShell from "@components/layout/DashboardShell.astro";
+import ProjectDashboard from "@components/dashboard/ProjectDashboard";
+
+const { id } = Astro.params;
+const projectId = Number(id);
+---
+
+<DashboardShell title="Proyecto - Appix Finance">
+  <div class="mb-2">
+    <a
+      href="/"
+      class="text-xs text-primary hover:underline"
+    >
+      &larr; Volver al Dashboard
+    </a>
+  </div>
+  <ProjectDashboard client:load projectId={projectId} />
+</DashboardShell>

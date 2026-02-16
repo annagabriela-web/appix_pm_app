@@ -1,0 +1,13 @@
+---
+import DashboardShell from "@components/layout/DashboardShell.astro";
+import PageHeader from "@components/layout/PageHeader.astro";
+import BillingRolesManager from "@components/dashboard/BillingRolesManager";
+---
+
+<DashboardShell title="Tarifas - Appix Finance">
+  <PageHeader
+    title="Tarifas por Rol"
+    subtitle="Define las tarifas horarias globales para cada rol"
+  />
+  <BillingRolesManager client:load />
+</DashboardShell>

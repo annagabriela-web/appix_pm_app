@@ -27,7 +27,7 @@ function transformKeys(
 }
 
 const apiClient = axios.create({
-  baseURL: import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api/v1",
+  baseURL: import.meta.env.PUBLIC_API_URL || "http://localhost:8001/api/v1",
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
@@ -47,8 +47,15 @@ apiClient.interceptors.response.use(
   }
 );
 
-// Transform camelCase requests to snake_case
+// Inject CSRF token from cookie into request headers
 apiClient.interceptors.request.use((config) => {
+  const csrfToken = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("csrftoken="))
+    ?.split("=")[1];
+  if (csrfToken) {
+    config.headers["X-CSRFToken"] = csrfToken;
+  }
   if (config.data) {
     config.data = transformKeys(config.data, camelToSnake);
   }

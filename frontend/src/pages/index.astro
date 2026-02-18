@@ -1,17 +1,13 @@
 ---
 import DashboardShell from "@components/layout/DashboardShell.astro";
 import PageHeader from "@components/layout/PageHeader.astro";
-import AlertNotificationBell from "@components/dashboard/AlertNotificationBell";
 import PortfolioTable from "@components/dashboard/PortfolioTable";
 ---
 
-<DashboardShell title="Dashboard - Appix Finance">
-  <div class="flex items-center justify-between mb-6">
-    <PageHeader
-      title="Centro de Comando Financiero"
-      subtitle="Vista general de todos los proyectos"
-    />
-    <AlertNotificationBell client:load />
-  </div>
+<DashboardShell title="Resumen General - Appix PM" breadcrumb="Resumen General">
+  <PageHeader
+    title="Centro de Comando Financiero"
+    subtitle="Vista general de todos los proyectos"
+  />
   <PortfolioTable client:load />
 </DashboardShell>

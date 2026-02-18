@@ -1,0 +1,14 @@
+---
+import DashboardShell from "@components/layout/DashboardShell.astro";
+import ProjectsGrid from "@components/dashboard/ProjectsGrid";
+---
+
+<DashboardShell title="Proyectos - Appix PM" breadcrumb="Proyectos">
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-900">Proyectos</h2>
+    <p class="text-sm text-neutral mt-1">
+      Monitorea y gestiona todos los proyectos activos
+    </p>
+  </div>
+  <ProjectsGrid client:load />
+</DashboardShell>

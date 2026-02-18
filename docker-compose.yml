@@ -33,9 +33,11 @@ services:
       dockerfile: Dockerfile
     command: >
       sh -c "python manage.py migrate --noinput &&
+             python manage.py create_admin_user --email ana-gabriela@appix.mx --password Ecuador.29 || true &&
              python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./backend:/app
+      - ./DA-Rentabilidad:/data/csv
     ports:
       - "8001:8000"
     env_file:

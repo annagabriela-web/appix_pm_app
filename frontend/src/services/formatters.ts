@@ -23,6 +23,20 @@ export function formatHours(value: string): string {
   return `${num.toFixed(1)}h`;
 }
 
+/**
+ * Format decimal hours to human-readable hours:minutes.
+ * 0.50 -> "30min", 1.33 -> "1h 20min", 3.87 -> "3h 52min", 8.00 -> "8h"
+ */
+export function formatHoursMinutes(decimalHours: number): string {
+  if (decimalHours <= 0) return "0min";
+  const totalMinutes = Math.round(decimalHours * 60);
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  if (h === 0) return `${m}min`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}min`;
+}
+
 export function getHealthColor(status: HealthStatus): string {
   const colors: Record<HealthStatus, string> = {
     CRITICAL: "#EF4444",
@@ -44,8 +58,8 @@ export function getHealthBgClass(status: HealthStatus): string {
 export function getHealthLabel(status: HealthStatus): string {
   const labels: Record<HealthStatus, string> = {
     CRITICAL: "Critico",
-    WARNING: "Advertencia",
-    HEALTHY: "Saludable",
+    WARNING: "En Riesgo",
+    HEALTHY: "En Camino",
   };
   return labels[status];
 }

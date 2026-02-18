@@ -9,6 +9,8 @@ router = DefaultRouter()
 router.register("projects", views.ProjectViewSet, basename="project")
 router.register("billing-roles", views.BillingRoleViewSet, basename="billing-role")
 router.register("alerts", views.AlertViewSet, basename="alert")
+router.register("advances", views.AdvanceViewSet, basename="advance")
+router.register("simple-changes", views.SimpleChangeViewSet, basename="simple-change")
 
 urlpatterns = [
     path("portfolio/", views.portfolio_view, name="portfolio"),

@@ -1,26 +1,34 @@
 import type { PaginatedResponse } from "@types/api";
 import type {
+  Advance,
   BillingRole,
   BurndownPoint,
+  ChangeRequest,
   HealthSnapshot,
   PhaseComparison,
   PortfolioProject,
   Project,
   ProjectDetail,
   ProjectHealthAlert,
+  SimpleChangeRequest,
+  SprintDetail,
 } from "@types/finance";
 
 import apiClient from "./apiClient";
 import {
+  advanceSchema,
   alertSchema,
   billingRoleSchema,
   burndownPointSchema,
+  changeRequestSchema,
   healthSnapshotSchema,
   paginatedResponseSchema,
   phaseComparisonSchema,
   portfolioProjectSchema,
   projectDetailSchema,
   projectSchema,
+  simpleChangeRequestSchema,
+  sprintDetailSchema,
 } from "./schemas";
 
 // --- Projects ---
@@ -127,6 +135,51 @@ export async function updateBillingRole(
 
 export async function deleteBillingRole(id: number): Promise<void> {
   await apiClient.delete(`/finance/billing-roles/${id}/`);
+}
+
+// --- Sprints ---
+
+export async function fetchSprints(projectId: number): Promise<SprintDetail[]> {
+  const { data } = await apiClient.get(`/finance/projects/${projectId}/sprints/`);
+  return sprintDetailSchema.array().parse(data);
+}
+
+// --- Advances ---
+
+export async function createAdvance(
+  projectId: number,
+  payload: { sprint: number; taskJiraKey: string; description: string; presentedBy: string }
+): Promise<Advance> {
+  const { data } = await apiClient.post(`/finance/projects/${projectId}/advances/`, payload);
+  return advanceSchema.parse(data);
+}
+
+export async function reviewAdvance(
+  advanceId: number,
+  payload: { status: "pending" | "accepted"; observations?: string }
+): Promise<Advance> {
+  const { data } = await apiClient.patch(`/finance/advances/${advanceId}/review/`, payload);
+  return advanceSchema.parse(data);
+}
+
+// --- Simple Changes ---
+
+export async function reviewSimpleChange(
+  changeId: number,
+  payload: { status: SimpleChangeRequest["status"]; reviewComments?: string }
+): Promise<SimpleChangeRequest> {
+  const { data } = await apiClient.patch(`/finance/simple-changes/${changeId}/review/`, payload);
+  return simpleChangeRequestSchema.parse(data);
+}
+
+// --- Change Requests ---
+
+export async function createChangeRequest(
+  projectId: number,
+  payload: { sprint: number; description: string; detail?: string; dependencies?: string; impact?: string; estimatedHours?: string }
+): Promise<ChangeRequest> {
+  const { data } = await apiClient.post(`/finance/projects/${projectId}/change-requests/`, payload);
+  return changeRequestSchema.parse(data);
 }
 
 // --- Sync ---

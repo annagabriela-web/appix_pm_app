@@ -2,56 +2,106 @@
 const currentPath = Astro.url.pathname;
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: "layout-dashboard" },
-  { href: "/portfolio", label: "Portfolio", icon: "briefcase" },
-  { href: "/billing-roles", label: "Tarifas", icon: "receipt" },
-  { href: "/alerts", label: "Alertas", icon: "bell" },
+  { href: "/", label: "Resumen General", icon: "chart-bar", exact: true },
+  { href: "/projects", label: "Proyectos", icon: "folder", exact: false },
+  { href: "/personal", label: "Personal", icon: "users", exact: false },
+  { href: "/billing-roles", label: "Configuracion", icon: "settings", exact: false },
 ];
+
+function isActive(item: { href: string; exact: boolean }): boolean {
+  if (item.exact) return currentPath === item.href;
+  return currentPath === item.href || currentPath.startsWith(item.href + "/");
+}
 ---
 
-<aside class="w-64 bg-white border-r border-gray-200 flex flex-col">
-  <div class="p-6 border-b border-gray-200">
-    <h1 class="text-xl font-bold text-gray-900">
-      <span class="text-primary">Appix</span> Finance
-    </h1>
-    <p class="text-xs text-neutral mt-1">Centro de Comando Financiero</p>
+<aside
+  id="sidebar"
+  class="relative flex flex-col bg-[#1E293B] transition-all duration-300 w-64 flex-shrink-0"
+>
+  <!-- Logo -->
+  <div class="flex items-center gap-3 px-5 py-5 border-b border-slate-700/50">
+    <div class="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center flex-shrink-0">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+      </svg>
+    </div>
+    <div class="sidebar-label">
+      <h1 class="text-white font-bold text-sm leading-tight">Appix PM</h1>
+      <p class="text-slate-400 text-[10px] leading-tight mt-0.5">Centro de Comando Financiero</p>
+    </div>
   </div>
 
-  <nav class="flex-1 p-4 space-y-1">
+  <!-- Navigation -->
+  <nav class="flex-1 px-3 py-4 space-y-1">
     {navItems.map((item) => {
-      const isActive = currentPath === item.href ||
-        (item.href !== "/" && currentPath.startsWith(item.href));
+      const active = isActive(item);
       return (
         <a
           href={item.href}
           class:list={[
-            "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
-            isActive
-              ? "bg-primary/10 text-primary"
-              : "text-neutral hover:bg-gray-100 hover:text-gray-900",
+            "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+            active
+              ? "bg-teal-500/15 text-teal-400"
+              : "text-slate-400 hover:bg-slate-700/50 hover:text-white",
           ]}
+          aria-current={active ? "page" : undefined}
         >
-          <span class="w-5 h-5 flex items-center justify-center text-current">
-            {item.icon === "layout-dashboard" && (
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+          <span class="w-5 h-5 flex items-center justify-center flex-shrink-0">
+            {item.icon === "chart-bar" && (
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>
             )}
-            {item.icon === "briefcase" && (
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg>
+            {item.icon === "folder" && (
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></svg>
             )}
-            {item.icon === "receipt" && (
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></svg>
+            {item.icon === "users" && (
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             )}
-            {item.icon === "bell" && (
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+            {item.icon === "settings" && (
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
             )}
           </span>
-          {item.label}
+          <span class="sidebar-label">{item.label}</span>
         </a>
       );
     })}
   </nav>
 
-  <div class="p-4 border-t border-gray-200">
-    <p class="text-xs text-neutral">v0.1.0</p>
-  </div>
+  <!-- Collapse toggle -->
+  <button
+    id="sidebar-toggle"
+    class="mx-3 mb-4 flex items-center gap-2 px-3 py-2 rounded-xl text-slate-500 hover:text-white hover:bg-slate-700/50 transition-all text-xs"
+    aria-label="Contraer menu lateral"
+  >
+    <svg id="chevron-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-300 flex-shrink-0"><path d="m15 18-6-6 6-6"/></svg>
+    <span class="sidebar-label">Contraer</span>
+  </button>
 </aside>
+
+<script>
+  const sidebar = document.getElementById("sidebar");
+  const toggleBtn = document.getElementById("sidebar-toggle");
+  const chevron = document.getElementById("chevron-icon");
+  const COLLAPSED_KEY = "sidebar-collapsed";
+
+  function applyState(collapsed: boolean) {
+    if (!sidebar) return;
+    const labels = sidebar.querySelectorAll(".sidebar-label");
+    if (collapsed) {
+      sidebar.style.width = "72px";
+      labels.forEach((el) => ((el as HTMLElement).style.display = "none"));
+      if (chevron) chevron.style.transform = "rotate(180deg)";
+    } else {
+      sidebar.style.width = "";
+      labels.forEach((el) => ((el as HTMLElement).style.display = ""));
+      if (chevron) chevron.style.transform = "";
+    }
+  }
+
+  applyState(localStorage.getItem(COLLAPSED_KEY) === "true");
+
+  toggleBtn?.addEventListener("click", () => {
+    const nowCollapsed = localStorage.getItem(COLLAPSED_KEY) !== "true";
+    localStorage.setItem(COLLAPSED_KEY, String(nowCollapsed));
+    applyState(nowCollapsed);
+  });
+</script>

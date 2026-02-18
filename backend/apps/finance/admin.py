@@ -2,12 +2,17 @@ from django.contrib import admin
 from django.utils.html import format_html
 
 from .models import (
+    Advance,
     BillingRole,
+    ChangeRequest,
     HealthSnapshot,
     Phase,
     Project,
     ProjectHealthAlert,
     ProjectRoleRate,
+    SimpleChangeRequest,
+    Sprint,
+    SprintTask,
     TimeEntry,
 )
 
@@ -105,3 +110,69 @@ class ProjectHealthAlertAdmin(admin.ModelAdmin):
     @admin.action(description="Marcar como leidas")
     def mark_as_read(self, request, queryset):  # type: ignore[no-untyped-def]
         queryset.update(is_read=True)
+
+
+# --- Sprint Management ---
+
+
+class SprintTaskInline(admin.TabularInline):
+    model = SprintTask
+    extra = 0
+
+
+class AdvanceInline(admin.TabularInline):
+    model = Advance
+    extra = 0
+    readonly_fields = ["created_at", "updated_at"]
+
+
+class SimpleChangeRequestInline(admin.TabularInline):
+    model = SimpleChangeRequest
+    fk_name = "sprint"
+    extra = 0
+    readonly_fields = ["created_at", "updated_at"]
+
+
+class ChangeRequestInline(admin.TabularInline):
+    model = ChangeRequest
+    extra = 0
+    readonly_fields = ["created_at", "updated_at"]
+
+
+@admin.register(Sprint)
+class SprintAdmin(admin.ModelAdmin):
+    list_display = ["name", "project", "status", "start_date", "end_date", "sort_order"]
+    list_filter = ["status", "project"]
+    search_fields = ["name", "project__name"]
+    inlines = [SprintTaskInline, AdvanceInline, SimpleChangeRequestInline, ChangeRequestInline]
+
+
+@admin.register(SprintTask)
+class SprintTaskAdmin(admin.ModelAdmin):
+    list_display = ["jira_key", "sprint", "title", "assigned_to", "hours", "date"]
+    list_filter = ["sprint", "assigned_to"]
+    search_fields = ["jira_key", "title"]
+
+
+@admin.register(Advance)
+class AdvanceAdmin(admin.ModelAdmin):
+    list_display = ["task_jira_key", "sprint", "status", "presented_by", "created_at"]
+    list_filter = ["status", "sprint"]
+    search_fields = ["task_jira_key", "description"]
+    readonly_fields = ["created_at", "updated_at"]
+
+
+@admin.register(SimpleChangeRequest)
+class SimpleChangeRequestAdmin(admin.ModelAdmin):
+    list_display = ["task_jira_key", "sprint", "status", "dragged_from_sprint", "created_at"]
+    list_filter = ["status", "sprint"]
+    search_fields = ["task_jira_key", "description"]
+    readonly_fields = ["created_at", "updated_at"]
+
+
+@admin.register(ChangeRequest)
+class ChangeRequestAdmin(admin.ModelAdmin):
+    list_display = ["description", "sprint", "status", "estimated_hours", "created_at"]
+    list_filter = ["status", "sprint"]
+    search_fields = ["description", "detail"]
+    readonly_fields = ["created_at", "updated_at"]

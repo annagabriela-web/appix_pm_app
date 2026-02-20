@@ -5,6 +5,7 @@ import type {
   BurndownPoint,
   ChangeRequest,
   HealthSnapshot,
+  Phase,
   PhaseComparison,
   PortfolioProject,
   Project,
@@ -23,6 +24,7 @@ import {
   changeRequestSchema,
   healthSnapshotSchema,
   paginatedResponseSchema,
+  phaseSchema,
   phaseComparisonSchema,
   portfolioProjectSchema,
   projectDetailSchema,
@@ -71,6 +73,75 @@ export async function fetchPhaseComparison(
     `/finance/projects/${projectId}/phase-comparison/`
   );
   return phaseComparisonSchema.array().parse(data);
+}
+
+// --- Phase Invoice ---
+
+export interface PhaseInvoicePayload {
+  invoiceAmount?: string | null;
+  invoiceDate?: string | null;
+  isPaid?: boolean;
+  invoiceFile?: File | null;
+  clearInvoiceFile?: boolean;
+}
+
+export async function updatePhaseInvoice(
+  phaseId: number,
+  payload: PhaseInvoicePayload
+): Promise<Phase> {
+  const hasFile = payload.invoiceFile instanceof File;
+  const clearFile = payload.clearInvoiceFile === true;
+
+  if (hasFile || clearFile) {
+    // FormData — field names must be snake_case (interceptor skips transform)
+    const fd = new FormData();
+    if (payload.invoiceAmount != null) {
+      fd.append("invoice_amount", payload.invoiceAmount);
+    }
+    if (payload.invoiceDate != null) {
+      fd.append("invoice_date", payload.invoiceDate);
+    }
+    if (payload.isPaid !== undefined) {
+      fd.append("is_paid", String(payload.isPaid));
+    }
+    if (hasFile && payload.invoiceFile) {
+      fd.append("invoice_file", payload.invoiceFile);
+    }
+    if (clearFile) {
+      fd.append("clear_invoice_file", "true");
+    }
+    const { data } = await apiClient.patch(`/finance/phases/${phaseId}/`, fd);
+    return phaseSchema.parse(data);
+  }
+
+  // No file — use regular JSON
+  const { data } = await apiClient.patch(`/finance/phases/${phaseId}/`, payload);
+  return phaseSchema.parse(data);
+}
+
+// --- Anticipo ---
+
+export interface AnticipoPayload {
+  anticipoAmount: string;
+  anticipoDate: string;
+  anticipoFile?: File;
+}
+
+export async function updateAnticipo(
+  projectId: number,
+  payload: AnticipoPayload
+): Promise<ProjectDetail> {
+  const fd = new FormData();
+  fd.append("anticipo_amount", payload.anticipoAmount);
+  fd.append("anticipo_date", payload.anticipoDate);
+  if (payload.anticipoFile) {
+    fd.append("anticipo_file", payload.anticipoFile);
+  }
+  const { data } = await apiClient.patch(
+    `/finance/projects/${projectId}/anticipo/`,
+    fd
+  );
+  return projectDetailSchema.parse(data);
 }
 
 // --- Health History ---
@@ -176,9 +247,32 @@ export async function reviewSimpleChange(
 
 export async function createChangeRequest(
   projectId: number,
-  payload: { sprint: number; description: string; detail?: string; dependencies?: string; impact?: string; estimatedHours?: string }
+  payload: {
+    sprint: number;
+    description: string;
+    detail?: string;
+    dependencies?: string;
+    impact?: string;
+    estimatedHours?: string;
+    isCharged?: boolean;
+    chargedAmount?: string;
+    phaseImpacts?: Array<{ phase: number; estimatedHours: string }>;
+  }
 ): Promise<ChangeRequest> {
   const { data } = await apiClient.post(`/finance/projects/${projectId}/change-requests/`, payload);
+  return changeRequestSchema.parse(data);
+}
+
+export async function updateChangeRequest(
+  crId: number,
+  payload: {
+    status?: ChangeRequest["status"];
+    isCharged?: boolean;
+    chargedAmount?: string;
+    phaseImpacts?: Array<{ phase: number; estimatedHours: string }>;
+  }
+): Promise<ChangeRequest> {
+  const { data } = await apiClient.patch(`/finance/change-requests/${crId}/`, payload);
   return changeRequestSchema.parse(data);
 }
 

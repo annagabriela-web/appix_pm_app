@@ -17,6 +17,38 @@ export const projectSchema = z.object({
   updatedAt: z.string(),
 });
 
+export const crPhaseImpactItemSchema = z.object({
+  crId: z.number(),
+  description: z.string(),
+  status: z.enum(["in_review", "accepted", "to_start", "in_process", "pending_acceptance", "completed"]),
+  estimatedHours: z.string(),
+  isCharged: z.boolean(),
+  chargedAmount: z.string(),
+});
+
+export const crImpactSchema = z.object({
+  items: z.array(crPhaseImpactItemSchema),
+  totalHours: z.string(),
+  totalCharged: z.string(),
+  totalAbsorbed: z.string(),
+  count: z.number(),
+});
+
+export const phaseSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  estimatedHours: z.string(),
+  actualHours: z.string(),
+  sortOrder: z.number(),
+  status: z.enum(["completed", "in_progress", "pending"]),
+  progressPercent: z.string(),
+  invoiceAmount: z.string().nullable(),
+  invoiceDate: z.string().nullable(),
+  isPaid: z.boolean(),
+  invoiceFileUrl: z.string().nullable(),
+  crImpact: crImpactSchema,
+});
+
 export const projectDetailSchema = projectSchema.extend({
   clientInvoiceAmount: z.string(),
   targetMargin: z.string(),
@@ -24,20 +56,10 @@ export const projectDetailSchema = projectSchema.extend({
   earnedValue: z.string(),
   jiraProjectKey: z.string(),
   clockifyProjectId: z.string(),
-  phases: z.array(
-    z.object({
-      id: z.number(),
-      name: z.string(),
-      estimatedHours: z.string(),
-      actualHours: z.string(),
-      sortOrder: z.number(),
-      status: z.enum(["completed", "in_progress", "pending"]),
-      progressPercent: z.string(),
-      invoiceAmount: z.string().nullable(),
-      invoiceDate: z.string().nullable(),
-      isPaid: z.boolean(),
-    })
-  ),
+  anticipoAmount: z.string().nullable(),
+  anticipoDate: z.string().nullable(),
+  anticipoFileUrl: z.string().nullable(),
+  phases: z.array(phaseSchema),
   roleRates: z.array(
     z.object({
       id: z.number(),
@@ -180,6 +202,14 @@ export const simpleChangeRequestSchema = z.object({
   updatedAt: z.string(),
 });
 
+export const changeRequestPhaseImpactSchema = z.object({
+  id: z.number(),
+  phase: z.number(),
+  phaseName: z.string(),
+  phaseSortOrder: z.number(),
+  estimatedHours: z.string(),
+});
+
 export const changeRequestSchema = z.object({
   id: z.number(),
   sprint: z.number(),
@@ -189,6 +219,9 @@ export const changeRequestSchema = z.object({
   dependencies: z.string(),
   impact: z.string(),
   estimatedHours: z.string().nullable(),
+  isCharged: z.boolean(),
+  chargedAmount: z.string().nullable(),
+  phaseImpacts: z.array(changeRequestPhaseImpactSchema),
   createdAt: z.string(),
   updatedAt: z.string(),
 });

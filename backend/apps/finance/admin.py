@@ -5,6 +5,7 @@ from .models import (
     Advance,
     BillingRole,
     ChangeRequest,
+    ChangeRequestPhaseImpact,
     HealthSnapshot,
     Phase,
     Project,
@@ -39,7 +40,7 @@ class ProjectAdmin(admin.ModelAdmin):
     ]
     list_filter = ["current_health_status"]
     search_fields = ["name", "code", "client_name"]
-    readonly_fields = ["current_health_status", "created_at", "updated_at"]
+    readonly_fields = ["current_health_status", "anticipo_amount", "anticipo_date", "created_at", "updated_at"]
     inlines = [PhaseInline, ProjectRoleRateInline]
 
     @admin.display(description="Health Status")
@@ -136,7 +137,8 @@ class SimpleChangeRequestInline(admin.TabularInline):
 class ChangeRequestInline(admin.TabularInline):
     model = ChangeRequest
     extra = 0
-    readonly_fields = ["created_at", "updated_at"]
+    fields = ["description", "status", "estimated_hours", "is_charged", "charged_amount", "created_at"]
+    readonly_fields = ["created_at"]
 
 
 @admin.register(Sprint)
@@ -170,9 +172,15 @@ class SimpleChangeRequestAdmin(admin.ModelAdmin):
     readonly_fields = ["created_at", "updated_at"]
 
 
+class ChangeRequestPhaseImpactInline(admin.TabularInline):
+    model = ChangeRequestPhaseImpact
+    extra = 1
+
+
 @admin.register(ChangeRequest)
 class ChangeRequestAdmin(admin.ModelAdmin):
-    list_display = ["description", "sprint", "status", "estimated_hours", "created_at"]
-    list_filter = ["status", "sprint"]
+    list_display = ["description", "sprint", "status", "estimated_hours", "is_charged", "charged_amount", "created_at"]
+    list_filter = ["status", "is_charged", "sprint"]
     search_fields = ["description", "detail"]
     readonly_fields = ["created_at", "updated_at"]
+    inlines = [ChangeRequestPhaseImpactInline]

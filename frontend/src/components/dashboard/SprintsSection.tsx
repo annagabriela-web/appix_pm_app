@@ -12,7 +12,7 @@ import {
 import { AlertCircle, ChevronDown, ChevronRight, FileEdit, FileText, Plus } from "lucide-react";
 import { useSprints } from "@hooks/useSprints";
 import { formatHoursMinutes } from "@services/formatters";
-import type { SprintDetail } from "@types/finance";
+import type { Phase, SprintDetail } from "@types/finance";
 import AdvanceDialog from "./dialogs/AdvanceDialog";
 import AdvanceReviewDialog from "./dialogs/AdvanceReviewDialog";
 import SimpleChangeDialog from "./dialogs/SimpleChangeDialog";
@@ -113,9 +113,11 @@ function CollapsibleSection({
 function SprintContent({
   sprint,
   projectId,
+  phases,
 }: {
   sprint: SprintDetail;
   projectId: number;
+  phases: Phase[];
 }) {
   const [advanceDialogOpen, setAdvanceDialogOpen] = useState(false);
   const [reviewAdvanceId, setReviewAdvanceId] = useState<number | null>(null);
@@ -402,7 +404,18 @@ function SprintContent({
               <div key={cr.id} className="bg-blue-50 rounded-lg border border-blue-200 p-3">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm font-semibold text-gray-800">{cr.description}</span>
-                  <StatusPill config={changeRequestStatusConfig[cr.status]} />
+                  <div className="flex items-center gap-1.5">
+                    {cr.isCharged ? (
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">
+                        COBRADO
+                      </span>
+                    ) : cr.status !== "in_review" ? (
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-100 text-red-600">
+                        ABSORBIDO
+                      </span>
+                    ) : null}
+                    <StatusPill config={changeRequestStatusConfig[cr.status]} />
+                  </div>
                 </div>
                 {cr.detail && <p className="text-xs text-gray-600 mt-1">{cr.detail}</p>}
                 {cr.dependencies && (
@@ -417,14 +430,25 @@ function SprintContent({
                     <p className="text-xs text-slate-700">{cr.impact}</p>
                   </div>
                 )}
-                {cr.estimatedHours && (
-                  <p className="text-xs text-primary mt-2">
-                    Horas estimadas: {cr.estimatedHours}h
-                  </p>
+                {cr.phaseImpacts.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {cr.phaseImpacts.map((pi) => (
+                      <span key={pi.phase} className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">
+                        S{pi.phaseSortOrder}: {pi.estimatedHours}h
+                      </span>
+                    ))}
+                  </div>
                 )}
-                <p className="text-[10px] text-slate-400 mt-2">
-                  {new Date(cr.createdAt).toLocaleDateString("es-MX")}
-                </p>
+                <div className="flex items-center justify-between mt-2">
+                  {cr.estimatedHours && (
+                    <p className="text-xs text-primary">
+                      Horas estimadas: {cr.estimatedHours}h
+                    </p>
+                  )}
+                  <p className="text-[10px] text-slate-400">
+                    {new Date(cr.createdAt).toLocaleDateString("es-MX")}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
@@ -459,13 +483,14 @@ function SprintContent({
         onClose={() => setChangeRequestDialogOpen(false)}
         sprintId={sprint.id}
         projectId={projectId}
+        phases={phases}
       />
     </div>
   );
 }
 
 /* ── Main section ── */
-export default function SprintsSection({ projectId }: { projectId: number }) {
+export default function SprintsSection({ projectId, phases }: { projectId: number; phases?: Phase[] }) {
   const { data: sprints = [], isLoading } = useSprints(projectId);
   const [activeId, setActiveId] = useState<number | null>(null);
 
@@ -502,17 +527,22 @@ export default function SprintsSection({ projectId }: { projectId: number }) {
           const cfg = sprintStatusConfig[sprint.status];
           const hours = getSprintHours(sprint);
 
+          // Red dot if matching phase has work but is unpaid
+          const matchPhase = phases?.find((p) => p.sortOrder === sprint.sortOrder);
+          const paymentOverdue = matchPhase && !matchPhase.isPaid && parseFloat(matchPhase.actualHours) > 0;
+          const dotClass = paymentOverdue ? "bg-red-500" : cfg.dotClass;
+
           return (
             <button
               key={sprint.id}
               onClick={() => setActiveId(sprint.id)}
               className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-medium whitespace-nowrap border-b-2 -mb-px transition-colors ${
                 isActive
-                  ? "border-primary text-primary"
+                  ? paymentOverdue ? "border-red-500 text-red-600" : "border-primary text-primary"
                   : "border-transparent text-slate-400 hover:text-slate-600"
               }`}
             >
-              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${cfg.dotClass}`} />
+              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotClass}`} />
               Sprint {sprint.sortOrder}
               {hours > 0 && (
                 <span className={`font-normal ${isActive ? "text-primary/50" : "text-slate-300"}`}>
@@ -526,7 +556,7 @@ export default function SprintsSection({ projectId }: { projectId: number }) {
 
       {/* ── Active sprint content ── */}
       {activeSprint && (
-        <SprintContent sprint={activeSprint} projectId={projectId} />
+        <SprintContent sprint={activeSprint} projectId={projectId} phases={phases ?? []} />
       )}
     </div>
   );

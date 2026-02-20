@@ -34,13 +34,33 @@ function DetailInner({ projectId }: { projectId: number }) {
 
   const phases = project?.phases ?? [];
   const totalInvoice = parseFloat(project?.clientInvoiceAmount ?? "0");
-  const totalPaid = phases
-    .filter((p) => p.isPaid && p.invoiceAmount)
+  const anticipoAmount = parseFloat(project?.anticipoAmount ?? "0");
+
+  // Pagos manuales per-sprint = fases isPaid con su propio PDF (no cubiertas por anticipo)
+  const manualPaid = phases
+    .filter((p) => p.isPaid && p.invoiceFileUrl && p.invoiceAmount)
     .reduce((acc, p) => acc + parseFloat(p.invoiceAmount!), 0);
+
+  // Cobrado = anticipo + pagos manuales per-sprint
+  const totalPaid = anticipoAmount > 0
+    ? anticipoAmount + manualPaid
+    : phases
+        .filter((p) => p.isPaid && p.invoiceAmount)
+        .reduce((acc, p) => acc + parseFloat(p.invoiceAmount!), 0);
+
+  // Facturas per-sprint emitidas (con fecha)
+  const perSprintInvoiced = phases
+    .filter((p) => p.invoiceAmount && p.invoiceDate)
+    .reduce((acc, p) => acc + parseFloat(p.invoiceAmount!), 0);
+
+  // Facturado = anticipo + facturas per-sprint emitidas
+  const totalInvoiced = anticipoAmount + perSprintInvoiced;
+
   const totalActualCost = parseFloat(project?.actualCost ?? "0");
   const totalBudgetHours = parseFloat(project?.budgetHours ?? "0");
   const totalConsumedHours = parseFloat(project?.consumedHours ?? "0");
   const paidPct = totalInvoice > 0 ? (totalPaid / totalInvoice) * 100 : 0;
+  const invoicedPct = totalInvoice > 0 ? (totalInvoiced / totalInvoice) * 100 : 0;
 
   return (
     <div className="space-y-6">
@@ -65,6 +85,11 @@ function DetailInner({ projectId }: { projectId: number }) {
                 ({paidPct.toFixed(0)}%)
               </span>
             </p>
+            {anticipoAmount > 0 && (
+              <p className="text-[10px] text-blue-600 font-medium mt-0.5">
+                Anticipo: ${anticipoAmount.toLocaleString("en-US")}
+              </p>
+            )}
           </div>
           {/* KPI 3: Costo Real */}
           <div>
@@ -94,7 +119,7 @@ function DetailInner({ projectId }: { projectId: number }) {
       </div>
 
       {/* Section 3: Sprint Management */}
-      <SprintsSection projectId={projectId} />
+      <SprintsSection projectId={projectId} phases={phases} />
     </div>
   );
 }

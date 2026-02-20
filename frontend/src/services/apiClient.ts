@@ -56,11 +56,16 @@ apiClient.interceptors.request.use((config) => {
   if (csrfToken) {
     config.headers["X-CSRFToken"] = csrfToken;
   }
-  if (config.data) {
-    config.data = transformKeys(config.data, camelToSnake);
-  }
   if (config.params) {
     config.params = transformKeys(config.params, camelToSnake);
+  }
+  // FormData: skip key transformation, let browser set Content-Type with boundary
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+    return config;
+  }
+  if (config.data) {
+    config.data = transformKeys(config.data, camelToSnake);
   }
   return config;
 });

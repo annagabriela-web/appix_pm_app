@@ -141,3 +141,27 @@ class TripleAxisService:
             )
 
         return snapshot
+
+
+class AnticipoCoverageService:
+    """Recomputa is_paid en fases basandose en el anticipo del proyecto."""
+
+    @staticmethod
+    def recompute(project: Project) -> None:
+        anticipo = project.anticipo_amount or Decimal("0")
+        phases = project.phases.order_by("sort_order")
+        cumulative = Decimal("0")
+
+        for phase in phases:
+            phase_invoice = phase.invoice_amount or Decimal("0")
+            cumulative += phase_invoice
+            should_be_paid = cumulative <= anticipo and phase_invoice > 0
+
+            if should_be_paid and not phase.is_paid:
+                phase.is_paid = True
+                phase.save(update_fields=["is_paid"])
+            elif not should_be_paid and phase.is_paid:
+                # No desmarcar fases con pago manual (tienen su propio PDF)
+                if not phase.invoice_file:
+                    phase.is_paid = False
+                    phase.save(update_fields=["is_paid"])

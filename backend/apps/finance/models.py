@@ -19,6 +19,16 @@ class Project(models.Model):
         help_text="Margen objetivo en porcentaje, ej: 30.00",
     )
 
+    # Anticipo
+    anticipo_amount = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True, blank=True,
+        help_text="Monto del anticipo recibido",
+    )
+    anticipo_date = models.DateField(null=True, blank=True)
+    anticipo_file = models.FileField(
+        upload_to="anticipos/", blank=True, null=True,
+    )
+
     # Client organization (multi-tenant)
     client_org = models.ForeignKey(
         "accounts.Organization",
@@ -83,6 +93,9 @@ class Phase(models.Model):
     )
     invoice_date = models.DateField(null=True, blank=True)
     is_paid = models.BooleanField(default=False)
+    invoice_file = models.FileField(
+        upload_to="invoices/", blank=True, null=True,
+    )
 
     class Meta:
         ordering = ["sort_order", "name"]
@@ -353,6 +366,20 @@ class ChangeRequest(models.Model):
     estimated_hours = models.DecimalField(
         max_digits=8, decimal_places=2, null=True, blank=True
     )
+    is_charged = models.BooleanField(
+        default=False,
+        help_text="True si el costo de este CR se cobro al cliente",
+    )
+    charged_amount = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True, blank=True,
+        help_text="Monto cobrado al cliente por este CR",
+    )
+    affected_phases = models.ManyToManyField(
+        Phase,
+        through="ChangeRequestPhaseImpact",
+        blank=True,
+        related_name="change_requests_affecting",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -361,3 +388,25 @@ class ChangeRequest(models.Model):
 
     def __str__(self) -> str:
         return f"{self.sprint} / CR: {self.description[:50]} [{self.status}]"
+
+
+class ChangeRequestPhaseImpact(models.Model):
+    """Horas estimadas que un CR agrega a una fase especifica."""
+
+    change_request = models.ForeignKey(
+        ChangeRequest, on_delete=models.CASCADE, related_name="phase_impacts"
+    )
+    phase = models.ForeignKey(
+        Phase, on_delete=models.CASCADE, related_name="cr_impacts"
+    )
+    estimated_hours = models.DecimalField(
+        max_digits=8, decimal_places=2,
+        help_text="Horas estimadas que este CR agrega a esta fase",
+    )
+
+    class Meta:
+        unique_together = ("change_request", "phase")
+        ordering = ["phase__sort_order"]
+
+    def __str__(self) -> str:
+        return f"CR#{self.change_request_id} -> {self.phase.name}: {self.estimated_hours}h"

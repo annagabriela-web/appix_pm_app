@@ -11,6 +11,8 @@ router.register("billing-roles", views.BillingRoleViewSet, basename="billing-rol
 router.register("alerts", views.AlertViewSet, basename="alert")
 router.register("advances", views.AdvanceViewSet, basename="advance")
 router.register("simple-changes", views.SimpleChangeViewSet, basename="simple-change")
+router.register("phases", views.PhaseViewSet, basename="phase")
+router.register("change-requests", views.ChangeRequestViewSet, basename="change-request")
 
 urlpatterns = [
     path("portfolio/", views.portfolio_view, name="portfolio"),

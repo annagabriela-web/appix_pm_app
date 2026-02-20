@@ -22,6 +22,9 @@ export interface ProjectDetail extends Project {
   earnedValue: string;
   jiraProjectKey: string;
   clockifyProjectId: string;
+  anticipoAmount: string | null;
+  anticipoDate: string | null;
+  anticipoFileUrl: string | null;
   phases: Phase[];
   roleRates: ProjectRoleRate[];
   latestSnapshot: HealthSnapshot | null;
@@ -29,6 +32,23 @@ export interface ProjectDetail extends Project {
 }
 
 export type PhaseStatus = "completed" | "in_progress" | "pending";
+
+export interface CrPhaseImpactItem {
+  crId: number;
+  description: string;
+  status: "in_review" | "accepted" | "to_start" | "in_process" | "pending_acceptance" | "completed";
+  estimatedHours: string;
+  isCharged: boolean;
+  chargedAmount: string;
+}
+
+export interface CrImpact {
+  items: CrPhaseImpactItem[];
+  totalHours: string;
+  totalCharged: string;
+  totalAbsorbed: string;
+  count: number;
+}
 
 export interface Phase {
   id: number;
@@ -41,6 +61,8 @@ export interface Phase {
   invoiceAmount: string | null;
   invoiceDate: string | null;
   isPaid: boolean;
+  invoiceFileUrl: string | null;
+  crImpact: CrImpact;
 }
 
 export interface BillingRole {
@@ -134,6 +156,14 @@ export interface SimpleChangeRequest {
   updatedAt: string;
 }
 
+export interface ChangeRequestPhaseImpact {
+  id: number;
+  phase: number;
+  phaseName: string;
+  phaseSortOrder: number;
+  estimatedHours: string;
+}
+
 export interface ChangeRequest {
   id: number;
   sprint: number;
@@ -143,6 +173,9 @@ export interface ChangeRequest {
   dependencies: string;
   impact: string;
   estimatedHours: string | null;
+  isCharged: boolean;
+  chargedAmount: string | null;
+  phaseImpacts: ChangeRequestPhaseImpact[];
   createdAt: string;
   updatedAt: string;
 }

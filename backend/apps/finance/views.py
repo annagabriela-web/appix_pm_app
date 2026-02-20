@@ -7,6 +7,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.filters import OrderingFilter
+from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -32,9 +33,11 @@ from .models import (
 from .serializers import (
     AdvanceSerializer,
     AlertSerializer,
+    AnticipoUpdateSerializer,
     BillingRoleSerializer,
     BurndownPointSerializer,
     ChangeRequestSerializer,
+    ChangeRequestWriteSerializer,
     ClientProjectDetailSerializer,
     ClientProjectListSerializer,
     HealthSnapshotSerializer,
@@ -42,9 +45,11 @@ from .serializers import (
     PortfolioProjectSerializer,
     ProjectDetailSerializer,
     ProjectListSerializer,
+    PhaseUpdateSerializer,
     SimpleChangeRequestSerializer,
     SprintDetailSerializer,
 )
+from .services import AnticipoCoverageService
 
 QUANTIZE = Decimal("0.01")
 
@@ -193,7 +198,8 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
         """GET /api/v1/finance/projects/{id}/sprints/"""
         project = self.get_object()
         qs = project.sprints.prefetch_related(
-            "tasks", "time_entries", "advances", "simple_changes", "change_requests"
+            "tasks", "time_entries", "advances", "simple_changes",
+            "change_requests", "change_requests__phase_impacts__phase",
         ).all()
         serializer = SprintDetailSerializer(qs, many=True)
         return Response(serializer.data)
@@ -227,7 +233,7 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
                 status=status.HTTP_403_FORBIDDEN,
             )
         project = self.get_object()
-        serializer = ChangeRequestSerializer(data=request.data)
+        serializer = ChangeRequestWriteSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         sprint_id = serializer.validated_data["sprint"].id
         if not project.sprints.filter(id=sprint_id).exists():
@@ -235,8 +241,44 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
                 {"detail": "Sprint no pertenece a este proyecto."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        cr = serializer.save()
+        return Response(
+            ChangeRequestSerializer(cr).data, status=status.HTTP_201_CREATED
+        )
+
+    @action(
+        detail=True,
+        methods=["patch"],
+        url_path="anticipo",
+        parser_classes=[MultiPartParser, JSONParser],
+    )
+    def update_anticipo(self, request: Request, pk: int | None = None) -> Response:
+        """PATCH /api/v1/finance/projects/{id}/anticipo/"""
+        if _is_client(request.user):
+            return Response(
+                {"detail": "No permitido."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        project = self.get_object()
+        serializer = AnticipoUpdateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        clear_file = serializer.validated_data.pop("clear_anticipo_file", False)
+        if clear_file and project.anticipo_file:
+            project.anticipo_file.delete(save=False)
+            project.anticipo_file = None
+
+        project.anticipo_amount = serializer.validated_data["anticipo_amount"]
+        project.anticipo_date = serializer.validated_data["anticipo_date"]
+        if "anticipo_file" in serializer.validated_data:
+            project.anticipo_file = serializer.validated_data["anticipo_file"]
+        project.save()
+
+        AnticipoCoverageService.recompute(project)
+
+        return Response(
+            ProjectDetailSerializer(project, context={"request": request}).data
+        )
 
 
 class AdvanceViewSet(viewsets.GenericViewSet):
@@ -286,6 +328,41 @@ class SimpleChangeViewSet(viewsets.GenericViewSet):
         )
         change.save(update_fields=["status", "review_comments", "updated_at"])
         return Response(SimpleChangeRequestSerializer(change).data)
+
+
+class ChangeRequestViewSet(viewsets.GenericViewSet):
+    """Update change requests (status, charging, phase impacts)."""
+
+    serializer_class = ChangeRequestWriteSerializer
+    permission_classes = [HasUserProfile, IsInternalUser]
+    queryset = ChangeRequest.objects.all()
+
+    def partial_update(self, request: Request, pk: int | None = None) -> Response:
+        """PATCH /api/v1/finance/change-requests/{id}/"""
+        cr = self.get_object()
+        serializer = ChangeRequestWriteSerializer(cr, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(ChangeRequestSerializer(cr).data)
+
+
+class PhaseViewSet(viewsets.GenericViewSet):
+    """Update invoice fields on a project phase."""
+
+    serializer_class = PhaseUpdateSerializer
+    permission_classes = [HasUserProfile, IsInternalUser]
+    parser_classes = [MultiPartParser, JSONParser]
+    queryset = Phase.objects.select_related("project").all()
+
+    def partial_update(self, request: Request, pk: int | None = None) -> Response:
+        """PATCH /api/v1/finance/phases/{id}/"""
+        from .serializers import PhaseSerializer
+
+        phase = self.get_object()
+        serializer = PhaseUpdateSerializer(phase, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(PhaseSerializer(phase, context={"request": request}).data)
 
 
 class BillingRoleViewSet(viewsets.ModelViewSet):

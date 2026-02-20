@@ -5,6 +5,7 @@ import {
   fetchSprints,
   reviewAdvance,
   reviewSimpleChange,
+  updateChangeRequest,
 } from "@services/financeApi";
 
 export function useSprints(projectId: number) {
@@ -48,6 +49,21 @@ export function useCreateChangeRequest(projectId: number) {
   return useMutation({
     mutationFn: (payload: Parameters<typeof createChangeRequest>[1]) =>
       createChangeRequest(projectId, payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["sprints", projectId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["sprints", projectId] });
+      qc.invalidateQueries({ queryKey: ["project", projectId] });
+    },
+  });
+}
+
+export function useUpdateChangeRequest(projectId: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...payload }: { id: number } & Parameters<typeof updateChangeRequest>[1]) =>
+      updateChangeRequest(id, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["sprints", projectId] });
+      qc.invalidateQueries({ queryKey: ["project", projectId] });
+    },
   });
 }

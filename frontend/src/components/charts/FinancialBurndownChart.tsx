@@ -128,7 +128,7 @@ function BurndownChartInner({ projectId }: FinancialBurndownChartProps) {
             <Line
               type="monotone"
               dataKey="earned"
-              stroke="#10B981"
+              stroke="#00e7ba"
               strokeWidth={2}
               dot={false}
             />

@@ -16,5 +16,7 @@ router.register("change-requests", views.ChangeRequestViewSet, basename="change-
 
 urlpatterns = [
     path("portfolio/", views.portfolio_view, name="portfolio"),
+    path("ceo-dashboard/", views.ceo_dashboard, name="ceo-dashboard"),
+    path("personal/", views.personal_dashboard, name="personal-dashboard"),
     path("", include(router.urls)),
 ]

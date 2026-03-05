@@ -4,12 +4,17 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Appix corporate palette
+        primary: "#6278fb",
+        turquoise: "#00e7ba",
+        celeste: "#67adee",
+        dark: "#021b33",
+        // Semantic
         critical: "#EF4444",
         warning: "#F59E0B",
-        healthy: "#10B981",
+        healthy: "#00e7ba",
         neutral: "#64748B",
-        primary: "#3B82F6",
-        accent: "#6366F1",
+        accent: "#ec4899",
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],

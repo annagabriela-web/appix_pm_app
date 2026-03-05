@@ -1,0 +1,14 @@
+---
+import DashboardShell from "@components/layout/DashboardShell.astro";
+import AnalisisFinancieroDashboard from "@components/dashboard/AnalisisFinancieroDashboard";
+---
+
+<DashboardShell title="Análisis Financiero - Appix PM" breadcrumb="Análisis Financiero">
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-900">Análisis Financiero</h2>
+    <p class="text-sm text-neutral mt-1">
+      Pipeline de facturación, proyectos en riesgo y portafolio
+    </p>
+  </div>
+  <AnalisisFinancieroDashboard client:load />
+</DashboardShell>

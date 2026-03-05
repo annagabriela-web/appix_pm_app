@@ -50,8 +50,8 @@ function TrendChartInner({ projectId }: HealthTrendChartProps) {
         <AreaChart data={chartData}>
           <defs>
             <linearGradient id="healthGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
-              <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+              <stop offset="5%" stopColor="#00e7ba" stopOpacity={0.3} />
+              <stop offset="95%" stopColor="#00e7ba" stopOpacity={0} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
@@ -71,7 +71,7 @@ function TrendChartInner({ projectId }: HealthTrendChartProps) {
           <Area
             type="monotone"
             dataKey="score"
-            stroke="#10B981"
+            stroke="#00e7ba"
             strokeWidth={2}
             fill="url(#healthGradient)"
           />

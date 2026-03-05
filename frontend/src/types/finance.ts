@@ -198,6 +198,197 @@ export interface SprintDetail {
   createdAt: string;
 }
 
+// --- CEO Dashboard ---
+
+export interface CeoDashboardRevenue {
+  totalContracted: string;
+  totalInvoiced: string;
+  totalCollected: string;
+  collectionRate: string;
+}
+
+export interface CeoDashboardCosts {
+  totalActualCost: string;
+  totalBudgetHours: string;
+  totalConsumedHours: string;
+  overallMargin: string;
+  targetMarginAvg: string;
+  crAbsorbedCost: string;
+  crAbsorbedHours: string;
+}
+
+export interface CeoDashboardAtRiskProject {
+  id: number;
+  name: string;
+  code: string;
+  healthStatus: HealthStatus;
+  consumptionPercent: string;
+  progressPercent: string;
+  deviation: string;
+}
+
+export interface CeoDashboardHealth {
+  totalProjects: number;
+  critical: number;
+  warning: number;
+  healthy: number;
+  atRiskProjects: CeoDashboardAtRiskProject[];
+}
+
+export interface CeoDashboardTeamMember {
+  name: string;
+  hours: string;
+  cost: string;
+  projectCount: number;
+}
+
+export interface CeoDashboardTeam {
+  totalMembers: number;
+  totalHours: string;
+  members: CeoDashboardTeamMember[];
+}
+
+export interface CeoDashboardOverbudget {
+  id: number;
+  name: string;
+  code: string;
+  budgetHours: string;
+  consumedHours: string;
+  overagePercent: string;
+  actualCost: string;
+  contractedAmount: string;
+}
+
+export interface CeoDashboardInvoice {
+  projectId: number;
+  projectName: string;
+  phaseName: string;
+  sortOrder: number;
+  invoiceAmount: string;
+  isPaid: boolean;
+  invoiceDate: string | null;
+}
+
+export interface TeamUtilizationMember {
+  name: string;
+  internalHours: string;
+  clientHours: string;
+}
+
+export interface CeoDashboardDateRange {
+  dateFrom: string | null;
+  dateTo: string | null;
+}
+
+export interface TeamFlowLink {
+  person: string;
+  project: string;
+  isInternal: boolean;
+  hours: string;
+}
+
+export interface HourComplianceEntry {
+  name: string;
+  month: string;
+  hours: string;
+}
+
+export interface DevelopmentGoalItem {
+  category: string;
+  categoryLabel: string;
+  hours: string;
+  hasData: boolean;
+  personBreakdown?: { name: string; hours: string }[];
+}
+
+export interface DataQualityAlert {
+  type: "WARNING" | "ERROR";
+  code: string;
+  message: string;
+  hours?: string;
+  count?: number;
+}
+
+export interface DevelopmentSummary {
+  totalInternalHours: string;
+  totalClientHours: string;
+}
+
+export interface OverdueInvoices {
+  count: number;
+  totalAmount: string;
+}
+
+export interface CeoDashboardData {
+  dateRange: CeoDashboardDateRange;
+  revenue: CeoDashboardRevenue;
+  costs: CeoDashboardCosts;
+  health: CeoDashboardHealth;
+  team: CeoDashboardTeam;
+  teamUtilization: TeamUtilizationMember[];
+  teamFlow: TeamFlowLink[];
+  hourCompliance: HourComplianceEntry[];
+  topOverbudget: CeoDashboardOverbudget[];
+  invoicePipeline: CeoDashboardInvoice[];
+  developmentGoals: DevelopmentGoalItem[];
+  developmentSummary: DevelopmentSummary;
+  dataQualityAlerts: DataQualityAlert[];
+  overdueInvoices: OverdueInvoices;
+}
+
+// --- Personal Dashboard ---
+
+export interface InternalBreakdownItem {
+  category: string;
+  categoryLabel: string;
+  hours: string;
+}
+
+export interface ClientProjectItem {
+  id: number;
+  name: string;
+  code: string;
+  hours: string;
+  hasJiraKey: boolean;
+}
+
+export interface DataQualityInfo {
+  totalEntries: number;
+  missingDescription: number;
+  clientEntriesWithoutJira: number;
+}
+
+export interface SuspiciousEntry {
+  jiraKey: string;
+  description: string;
+  hours: string;
+  projectCode: string;
+}
+
+export interface PersonalMember {
+  name: string;
+  totalHours: string;
+  clientHours: string;
+  internalHours: string;
+  productiveHours: string;
+  nonProductiveHours: string;
+  internalBreakdown: InternalBreakdownItem[];
+  clientProjects: ClientProjectItem[];
+  dataQuality: DataQualityInfo;
+  suspiciousEntries: SuspiciousEntry[];
+}
+
+export interface PersonalSummary {
+  totalMembers: number;
+  avgProductivePercent: string;
+  avgClientPercent: string;
+}
+
+export interface PersonalDashboardData {
+  members: PersonalMember[];
+  summary: PersonalSummary;
+}
+
 export interface PortfolioProject {
   id: number;
   name: string;

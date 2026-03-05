@@ -46,7 +46,7 @@ function PhaseChartInner({ projectId }: PhaseComparisonChartProps) {
     const estimated = parseFloat(phase.estimatedHours);
     const actual = parseFloat(phase.actualHours);
 
-    let fillColor = "#10B981"; // healthy
+    let fillColor = "#00e7ba"; // healthy
     if (actual > estimated * 1.15) {
       fillColor = "#EF4444"; // critical
     } else if (actual > estimated) {
@@ -116,7 +116,7 @@ function PhaseChartInner({ projectId }: PhaseComparisonChartProps) {
                 value === "estimated" ? "Estimado" : "Real"
               }
             />
-            <Bar dataKey="estimated" fill="#3B82F6" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="estimated" fill="#6278fb" radius={[4, 4, 0, 0]} />
             <Bar dataKey="actual" fill="#64748B" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>

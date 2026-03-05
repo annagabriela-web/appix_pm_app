@@ -124,6 +124,156 @@ export const billingRoleSchema = z.object({
   defaultHourlyRate: z.string(),
 });
 
+// --- CEO Dashboard ---
+
+export const ceoDashboardSchema = z.object({
+  dateRange: z.object({
+    dateFrom: z.string().nullable(),
+    dateTo: z.string().nullable(),
+  }),
+  revenue: z.object({
+    totalContracted: z.string(),
+    totalInvoiced: z.string(),
+    totalCollected: z.string(),
+    collectionRate: z.string(),
+  }),
+  costs: z.object({
+    totalActualCost: z.string(),
+    totalBudgetHours: z.string(),
+    totalConsumedHours: z.string(),
+    overallMargin: z.string(),
+    targetMarginAvg: z.string(),
+    crAbsorbedCost: z.string(),
+    crAbsorbedHours: z.string(),
+  }),
+  health: z.object({
+    totalProjects: z.number(),
+    critical: z.number(),
+    warning: z.number(),
+    healthy: z.number(),
+    atRiskProjects: z.array(z.object({
+      id: z.number(),
+      name: z.string(),
+      code: z.string(),
+      healthStatus: healthStatusSchema,
+      consumptionPercent: z.string(),
+      progressPercent: z.string(),
+      deviation: z.string(),
+    })),
+  }),
+  team: z.object({
+    totalMembers: z.number(),
+    totalHours: z.string(),
+    members: z.array(z.object({
+      name: z.string(),
+      hours: z.string(),
+      cost: z.string(),
+      projectCount: z.number(),
+    })),
+  }),
+  teamUtilization: z.array(z.object({
+    name: z.string(),
+    internalHours: z.string(),
+    clientHours: z.string(),
+  })),
+  teamFlow: z.array(z.object({
+    person: z.string(),
+    project: z.string(),
+    isInternal: z.boolean(),
+    hours: z.string(),
+  })),
+  hourCompliance: z.array(z.object({
+    name: z.string(),
+    month: z.string(),
+    hours: z.string(),
+  })),
+  topOverbudget: z.array(z.object({
+    id: z.number(),
+    name: z.string(),
+    code: z.string(),
+    budgetHours: z.string(),
+    consumedHours: z.string(),
+    overagePercent: z.string(),
+    actualCost: z.string(),
+    contractedAmount: z.string(),
+  })),
+  invoicePipeline: z.array(z.object({
+    projectId: z.number(),
+    projectName: z.string(),
+    phaseName: z.string(),
+    sortOrder: z.number(),
+    invoiceAmount: z.string(),
+    isPaid: z.boolean(),
+    invoiceDate: z.string().nullable(),
+  })),
+  developmentGoals: z.array(z.object({
+    category: z.string(),
+    categoryLabel: z.string(),
+    hours: z.string(),
+    hasData: z.boolean(),
+    personBreakdown: z.array(z.object({
+      name: z.string(),
+      hours: z.string(),
+    })).optional(),
+  })),
+  developmentSummary: z.object({
+    totalInternalHours: z.string(),
+    totalClientHours: z.string(),
+  }),
+  dataQualityAlerts: z.array(z.object({
+    type: z.string(),
+    code: z.string(),
+    message: z.string(),
+    hours: z.string().optional(),
+    count: z.number().optional(),
+  })).optional().default([]),
+  overdueInvoices: z.object({
+    count: z.number(),
+    totalAmount: z.string(),
+  }),
+});
+
+// --- Personal Dashboard ---
+
+export const personalDashboardSchema = z.object({
+  members: z.array(z.object({
+    name: z.string(),
+    totalHours: z.string(),
+    clientHours: z.string(),
+    internalHours: z.string(),
+    productiveHours: z.string(),
+    nonProductiveHours: z.string(),
+    internalBreakdown: z.array(z.object({
+      category: z.string(),
+      categoryLabel: z.string(),
+      hours: z.string(),
+    })),
+    clientProjects: z.array(z.object({
+      id: z.number(),
+      name: z.string(),
+      code: z.string(),
+      hours: z.string(),
+      hasJiraKey: z.boolean(),
+    })),
+    dataQuality: z.object({
+      totalEntries: z.number(),
+      missingDescription: z.number(),
+      clientEntriesWithoutJira: z.number(),
+    }),
+    suspiciousEntries: z.array(z.object({
+      jiraKey: z.string(),
+      description: z.string(),
+      hours: z.string(),
+      projectCode: z.string(),
+    })),
+  })),
+  summary: z.object({
+    totalMembers: z.number(),
+    avgProductivePercent: z.string(),
+    avgClientPercent: z.string(),
+  }),
+});
+
 export const portfolioProjectSchema = z.object({
   id: z.number(),
   name: z.string(),

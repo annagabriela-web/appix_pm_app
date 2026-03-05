@@ -1,13 +1,13 @@
 ---
 import DashboardShell from "@components/layout/DashboardShell.astro";
 import PageHeader from "@components/layout/PageHeader.astro";
-import PortfolioTable from "@components/dashboard/PortfolioTable";
+import CeoDashboard from "@components/dashboard/CeoDashboard";
 ---
 
 <DashboardShell title="Resumen General - Appix PM" breadcrumb="Resumen General">
   <PageHeader
     title="Centro de Comando Financiero"
-    subtitle="Vista general de todos los proyectos"
+    subtitle="Vista ejecutiva de todos los proyectos"
   />
-  <PortfolioTable client:load />
+  <CeoDashboard client:load />
 </DashboardShell>

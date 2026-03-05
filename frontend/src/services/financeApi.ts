@@ -3,8 +3,10 @@ import type {
   Advance,
   BillingRole,
   BurndownPoint,
+  CeoDashboardData,
   ChangeRequest,
   HealthSnapshot,
+  PersonalDashboardData,
   Phase,
   PhaseComparison,
   PortfolioProject,
@@ -21,9 +23,11 @@ import {
   alertSchema,
   billingRoleSchema,
   burndownPointSchema,
+  ceoDashboardSchema,
   changeRequestSchema,
   healthSnapshotSchema,
   paginatedResponseSchema,
+  personalDashboardSchema,
   phaseSchema,
   phaseComparisonSchema,
   portfolioProjectSchema,
@@ -160,6 +164,34 @@ export async function fetchHealthHistory(
 export async function fetchPortfolio(): Promise<PortfolioProject[]> {
   const { data } = await apiClient.get("/finance/portfolio/");
   return portfolioProjectSchema.array().parse(data);
+}
+
+// --- CEO Dashboard ---
+
+export interface CeoDashboardParams {
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export async function fetchCeoDashboard(
+  params?: CeoDashboardParams
+): Promise<CeoDashboardData> {
+  const { data } = await apiClient.get("/finance/ceo-dashboard/", { params });
+  return ceoDashboardSchema.parse(data);
+}
+
+// --- Personal Dashboard ---
+
+export interface PersonalDashboardParams {
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export async function fetchPersonalDashboard(
+  params?: PersonalDashboardParams
+): Promise<PersonalDashboardData> {
+  const { data } = await apiClient.get("/finance/personal/", { params });
+  return personalDashboardSchema.parse(data);
 }
 
 // --- Alerts ---

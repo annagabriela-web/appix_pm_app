@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -21,7 +22,17 @@ def login_view(request: Request) -> Response:
     email = request.data.get("email", "")
     password = request.data.get("password", "")
 
+    # Try authenticating with email as username first
     user = authenticate(request._request, username=email, password=password)
+
+    # If that fails, look up user by email field and retry with their username
+    if user is None:
+        try:
+            db_user = User.objects.get(email=email)
+            user = authenticate(request._request, username=db_user.username, password=password)
+        except User.DoesNotExist:
+            pass
+
     if user is None:
         return Response(
             {"detail": "Credenciales invalidas."},

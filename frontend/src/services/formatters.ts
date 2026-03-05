@@ -41,7 +41,7 @@ export function getHealthColor(status: HealthStatus): string {
   const colors: Record<HealthStatus, string> = {
     CRITICAL: "#EF4444",
     WARNING: "#F59E0B",
-    HEALTHY: "#10B981",
+    HEALTHY: "#00e7ba",
   };
   return colors[status];
 }

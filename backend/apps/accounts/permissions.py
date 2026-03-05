@@ -57,6 +57,20 @@ class CanSeePortfolio(BasePermission):
         )
 
 
+class CanSeePersonal(BasePermission):
+    """DIRECTOR, ADMIN, and PM can see personal/team view."""
+
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        if request.user.is_superuser:
+            return True
+        return (
+            hasattr(request.user, "profile")
+            and request.user.profile.can_see_personal
+        )
+
+
 class CanManageBillingRoles(BasePermission):
     """
     ADMIN can write billing roles.

@@ -40,6 +40,31 @@ class Project(models.Model):
         help_text="The external client organization that owns this project.",
     )
 
+    # Internal vs Client classification
+    is_internal = models.BooleanField(
+        default=False,
+        help_text="True for internal Appix projects, False for client projects.",
+    )
+
+    INTERNAL_CATEGORY_CHOICES = [
+        ("DAILYS", "Dailys / Reuniones"),
+        ("VENTAS", "Ventas"),
+        ("CAPACITACION", "Capacitación"),
+        ("INNOVACION", "Innovación / Data"),
+        ("HR_ADMIN", "RH y Admin"),
+        ("GESTION", "Gestión PMO"),
+        ("TI", "TI / Desarrollo Interno"),
+        ("DISENO", "Diseño Interno"),
+        ("OTHER", "Otro"),
+    ]
+    internal_category = models.CharField(
+        max_length=20,
+        choices=INTERNAL_CATEGORY_CHOICES,
+        blank=True,
+        default="",
+        help_text="Categoría para proyectos internos (vacío = proyecto cliente).",
+    )
+
     # Integration IDs
     jira_project_key = models.CharField(max_length=20, blank=True, default="")
     clockify_project_id = models.CharField(max_length=100, blank=True, default="")

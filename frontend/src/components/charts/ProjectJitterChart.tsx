@@ -11,7 +11,7 @@ import {
 import { useSprints } from "@hooks/useSprints";
 import { formatHoursMinutes } from "@services/formatters";
 
-const SPRINT_COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ec4899", "#94a3b8"];
+const SPRINT_COLORS = ["#6278fb", "#00e7ba", "#f59e0b", "#ec4899", "#67adee"];
 
 interface JitterPoint {
   x: number;

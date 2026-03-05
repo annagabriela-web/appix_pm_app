@@ -11,8 +11,9 @@ from apps.finance.models import Project, ProjectHealthAlert
 def get_projects_for_user(user: User) -> QuerySet[Project]:
     """
     Return the filtered Project queryset based on the user's role:
-    - ADMIN / DIRECTOR: all projects
-    - PM: only projects assigned via ProjectAssignment
+    - DIRECTOR: all projects (internal + client)
+    - ADMIN: only internal projects (is_internal=True)
+    - PM: only client projects assigned via ProjectAssignment
     - CLIENT: only projects where client_org matches user's organization
     - Superuser without profile: all projects (legacy)
     """
@@ -21,12 +22,15 @@ def get_projects_for_user(user: User) -> QuerySet[Project]:
 
     profile = user.profile
 
-    if profile.role in ("ADMIN", "DIRECTOR"):
+    if profile.role == "DIRECTOR":
         return Project.objects.all()
+
+    if profile.role == "ADMIN":
+        return Project.objects.filter(is_internal=True)
 
     if profile.role == "PM":
         assigned_ids = profile.project_assignments.values_list("project_id", flat=True)
-        return Project.objects.filter(id__in=assigned_ids)
+        return Project.objects.filter(is_internal=False, id__in=assigned_ids)
 
     if profile.role == "CLIENT":
         return Project.objects.filter(client_org=profile.organization)

@@ -34,11 +34,12 @@ class ProjectAdmin(admin.ModelAdmin):
         "code",
         "name",
         "client_name",
+        "is_internal",
         "budget_hours",
         "health_status_badge",
         "updated_at",
     ]
-    list_filter = ["current_health_status"]
+    list_filter = ["current_health_status", "is_internal"]
     search_fields = ["name", "code", "client_name"]
     readonly_fields = ["current_health_status", "anticipo_amount", "anticipo_date", "created_at", "updated_at"]
     inlines = [PhaseInline, ProjectRoleRateInline]

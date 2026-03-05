@@ -78,7 +78,7 @@ class UserProfile(models.Model):
 
     @property
     def can_see_personal(self) -> bool:
-        return self.role in (self.Role.PM, self.Role.ADMIN)
+        return self.role in (self.Role.DIRECTOR, self.Role.PM, self.Role.ADMIN)
 
     @property
     def can_manage_billing_roles(self) -> bool:

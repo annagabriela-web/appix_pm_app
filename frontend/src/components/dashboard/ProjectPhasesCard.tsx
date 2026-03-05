@@ -170,7 +170,7 @@ function PhaseRow({
   const hasCrImpact = phase.crImpact.count > 0;
 
   // Bar color: green = paid, red = work without payment, gray = no work
-  const barColor = phase.isPaid ? "#10B981" : actual > 0 ? "#EF4444" : "#94A3B8";
+  const barColor = phase.isPaid ? "#00e7ba" : actual > 0 ? "#EF4444" : "#94A3B8";
 
   function handleRowClick() {
     if (hasCrImpact) {

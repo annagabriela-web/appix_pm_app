@@ -48,23 +48,23 @@ function LoginFormInner() {
     <div className="w-full max-w-sm">
       {/* Logo */}
       <div className="mb-8 text-center">
-        <div className="inline-flex items-center justify-center w-12 h-12 bg-teal-500 rounded-xl mb-4">
+        <div className="inline-flex items-center justify-center w-12 h-12 bg-[#6278fb] rounded-xl mb-4">
           <span className="text-white font-bold text-xl">A</span>
         </div>
         <h1 className="text-2xl font-bold text-white">
-          <span className="text-teal-400">Appix</span> PM
+          <span className="text-[#00e7ba]">Appix</span> PM
         </h1>
-        <p className="text-slate-400 text-xs mt-1">
+        <p className="text-gray-400 text-xs mt-1">
           Centro de Comando Financiero
         </p>
       </div>
 
       {/* Card */}
-      <div className="bg-[#1E293B] rounded-2xl p-8 shadow-2xl border border-slate-700/50">
+      <div className="bg-white/5 backdrop-blur rounded-2xl p-8 shadow-2xl border border-white/10">
         <h2 className="text-lg font-semibold text-white mb-1">
           Iniciar sesion
         </h2>
-        <p className="text-slate-400 text-xs mb-6">
+        <p className="text-gray-400 text-xs mb-6">
           Ingresa tus credenciales para acceder
         </p>
 
@@ -78,7 +78,7 @@ function LoginFormInner() {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-slate-300 mb-1.5"
+              className="block text-sm font-medium text-gray-300 mb-1.5"
             >
               Correo electronico
             </label>
@@ -89,7 +89,7 @@ function LoginFormInner() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2.5 text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#6278fb] focus:border-[#6278fb] transition-colors"
               placeholder="correo@appix.mx"
             />
           </div>
@@ -97,7 +97,7 @@ function LoginFormInner() {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-slate-300 mb-1.5"
+              className="block text-sm font-medium text-gray-300 mb-1.5"
             >
               Contrasena
             </label>
@@ -108,7 +108,7 @@ function LoginFormInner() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2.5 text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#6278fb] focus:border-[#6278fb] transition-colors"
               placeholder="••••••••"
             />
           </div>
@@ -122,14 +122,14 @@ function LoginFormInner() {
           <button
             type="submit"
             disabled={mutation.isPending || !csrfReady}
-            className="w-full bg-teal-500 hover:bg-teal-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold rounded-lg py-2.5 text-sm transition-colors mt-2"
+            className="w-full bg-[#6278fb] hover:bg-[#4f63e0] disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold rounded-lg py-2.5 text-sm transition-colors mt-2"
           >
             {mutation.isPending ? "Autenticando..." : "Iniciar sesion"}
           </button>
         </form>
       </div>
 
-      <p className="text-center text-slate-500 text-xs mt-6">
+      <p className="text-center text-gray-500 text-xs mt-6">
         Appix Data Management v1.0
       </p>
     </div>
